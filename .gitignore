@@ -59,3 +59,11 @@ typings/
 
 # next.js build output
 .next
+
+# mac files
+.DS_Store
+
+# vim swap files
+*.swp
+
+package-lock.json
