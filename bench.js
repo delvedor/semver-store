@@ -3,32 +3,55 @@
 const Benchmark = require('benchmark')
 const suite = Benchmark.Suite()
 
-const semver = require('semver')
-const store = require('./index')()
-store.set('1.2.3', null)
+const SemVerStore = require('./index')
+const store1 = SemVerStore()
+const store2 = SemVerStore()
+
+store2
+  .set('1.1.1', 1)
+  .set('1.1.2', 1)
+  .set('1.1.3', 1)
+  .set('1.2.1', 1)
+  .set('1.2.2', 1)
+  .set('1.2.3', 1)
+  .set('2.1.1', 1)
+  .set('2.1.2', 1)
+  .set('2.1.3', 1)
+  .set('3.2.1', 1)
+  .set('3.2.2', 1)
+  .set('3.2.3', 1)
 
 suite
-  .add('semver-store - full', function () {
-    store.get('1.2.3')
+  .add('set', function () {
+    store1.set('1.2.3', 1)
   })
-  .add('semver - full', function () {
-    semver.satisfies('1.2.3', '1.2.3')
+  .add('get', function () {
+    store1.get('1.2.3')
   })
-
-  .add('semver-store - wildcard', function () {
-    store.get('1.x')
+  .add('get (minor wildcard)', function () {
+    store1.get('1.x')
   })
-  .add('semver - wildcard', function () {
-    semver.satisfies('1.2.3', '1.x')
+  .add('get (patch wildcard)', function () {
+    store1.get('1.2.x')
   })
-
-  .add('semver-store - no patch', function () {
-    store.get('1.2')
+  .add('del + set', function () {
+    store1.del('1.2.3')
+    store1.set('1.2.3', 1)
   })
-  .add('semver - no patch', function () {
-    semver.satisfies('1.2.3', '1.2')
+  .add('del (minor wildcard) + set', function () {
+    store1.del('1.x')
+    store1.set('1.2.3', 1)
   })
-
+  .add('del (patch wildcard) + set', function () {
+    store1.del('1.2.x')
+    store1.set('1.2.3', 1)
+  })
+  .add('set with other keys already present', function () {
+    store2.set('1.2.4', 1)
+  })
+  .add('get with other keys already present', function () {
+    store2.get('1.2.4')
+  })
   .on('cycle', function (event) {
     console.log(String(event.target))
   })
