@@ -7,28 +7,29 @@ function SemVerStore () {
   this.tree = new Node()
 }
 
-SemVerStore.prototype.set = function (semverString, store) {
+SemVerStore.prototype.set = function (version, store) {
   var currentNode = this.tree
-  semverString = semverString.split('.')
-  while (semverString.length) {
-    const node = new Node(semverString.shift())
-    currentNode = currentNode.addChild(node)
-    continue
+  version = version.split('.')
+  while (version.length) {
+    currentNode = currentNode.addChild(
+      new Node(version.shift())
+    )
   }
   currentNode.setStore(store)
+  return this
 }
 
-SemVerStore.prototype.get = function (semverString) {
+SemVerStore.prototype.get = function (version) {
   var node = this.tree
-  var firstDot = semverString.indexOf('.')
-  var secondDot = semverString.indexOf('.', firstDot + 1)
-  var major = semverString.slice(0, firstDot)
+  var firstDot = version.indexOf('.')
+  var secondDot = version.indexOf('.', firstDot + 1)
+  var major = version.slice(0, firstDot)
   var minor = secondDot === -1
-    ? semverString.slice(firstDot + 1)
-    : semverString.slice(firstDot + 1, secondDot + 1)
+    ? version.slice(firstDot + 1)
+    : version.slice(firstDot + 1, secondDot)
   var patch = secondDot === -1
     ? 'x'
-    : semverString.slice(secondDot + 1)
+    : version.slice(secondDot + 1)
 
   node = node.getChild(major)
   if (node === null) return null
@@ -37,6 +38,68 @@ SemVerStore.prototype.get = function (semverString) {
   node = node.getChild(patch)
   if (node === null) return null
   return node.store
+}
+
+SemVerStore.prototype.del = function (version) {
+  var firstDot = version.indexOf('.')
+  var secondDot = version.indexOf('.', firstDot + 1)
+  var major = version.slice(0, firstDot)
+  var minor = secondDot === -1
+    ? version.slice(firstDot + 1)
+    : version.slice(firstDot + 1, secondDot)
+  var patch = secondDot === -1
+    ? 'x'
+    : version.slice(secondDot + 1)
+
+  // check existence of major node
+  var majorNode = this.tree.children[major]
+  if (majorNode == null) return this
+
+  // if minor is the wildcard, then remove the full major node
+  if (minor === 'x') {
+    this.tree.removeChild(major)
+    return this
+  }
+
+  // check existence of minor node
+  var minorNode = majorNode.children[minor]
+  if (minorNode == null) return this
+
+  // if patch is the wildcard, then remove the full minor node
+  // and also the major if there are no more children
+  if (patch === 'x') {
+    this.tree.children[major].removeChild(minor)
+    if (this.tree.children[major].length === 0) {
+      this.tree.removeChild(major)
+    }
+    return this
+  }
+
+  // check existence of patch node
+  var patchNode = minorNode.children[patch]
+  if (patchNode == null) return this
+
+  // Specific delete
+  this.tree
+    .children[major]
+    .children[minor]
+    .removeChild(patch)
+
+  // check if the minor node has no more children, if so removes it
+  // same for the major node
+  if (this.tree.children[major].children[minor].length === 0) {
+    this.tree.children[major].removeChild(minor)
+    if (this.tree.children[major].length === 0) {
+      this.tree.removeChild(major)
+    }
+  }
+
+  return this
+}
+
+SemVerStore.prototype.empty = function () {
+  this.tree = new Node()
+  return this
 }
 
 function Node (prefix, children, store) {
@@ -49,15 +112,15 @@ function Node (prefix, children, store) {
 Node.prototype.getChild = function (prefix) {
   if (this.children === null) return null
   if (prefix === 'x') {
-    const max = Math.max.apply(Math, this.childrenPrefixes)
+    var max = Math.max.apply(Math, this.childrenPrefixes)
     return this.children[max]
   }
-  return this.children[Number(prefix)] || null
+  return this.children[prefix] || null
 }
 
 Node.prototype.addChild = function (node) {
   this.children = this.children || {}
-  const child = this.getChild(node.prefix)
+  var child = this.getChild(node.prefix)
   if (child === null) {
     this.children[node.prefix] = node
     this.childrenPrefixes.push(node.prefix)
@@ -65,8 +128,31 @@ Node.prototype.addChild = function (node) {
   return child || node
 }
 
+Node.prototype.removeChild = function (prefix) {
+  if (prefix === 'x') {
+    this.children = null
+    this.childrenPrefixes = []
+    return this
+  }
+  if (this.children[prefix] !== undefined) {
+    prefix = Number(prefix)
+    delete this.children[prefix]
+    this.childrenPrefixes.splice(
+      this.childrenPrefixes.indexOf(prefix), 1
+    )
+  }
+  return this
+}
+
 Node.prototype.setStore = function (store) {
   this.store = store
+  return this
 }
+
+Object.defineProperty(Node.prototype, 'length', {
+  get: function () {
+    return this.childrenPrefixes.length
+  }
+})
 
 module.exports = SemVerStore

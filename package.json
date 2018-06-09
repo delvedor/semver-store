@@ -23,7 +23,6 @@
   "homepage": "https://github.com/delvedor/semver-store#readme",
   "devDependencies": {
     "benchmark": "^2.1.4",
-    "semver": "^5.5.0",
     "standard": "^11.0.1",
     "tap": "^12.0.1"
   }
