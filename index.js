@@ -109,6 +109,17 @@ SemVerStore.prototype.empty = function () {
   return this
 }
 
+function getMax (arr) {
+  var l = arr.length
+  var max = arr[0]
+  for (var i = 1; i < l; i++) {
+    if (arr[i] > max) {
+      max = arr[i]
+    }
+  }
+  return max
+}
+
 function Node (prefix, children, store) {
   this.prefix = Number(prefix) || 0
   this.children = children || null
@@ -119,7 +130,7 @@ function Node (prefix, children, store) {
 Node.prototype.getChild = function (prefix) {
   if (this.children === null) return null
   if (prefix === 'x') {
-    var max = Math.max.apply(Math, this.childrenPrefixes)
+    var max = getMax(this.childrenPrefixes)
     return this.children[max]
   }
   return this.children[prefix] || null
