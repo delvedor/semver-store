@@ -471,3 +471,39 @@ test('Empty store', t => {
     children: null
   })
 })
+
+test('get with bad type', t => {
+  t.plan(1)
+
+  const store = SemVerStore()
+
+  store.set('1.2.3', 1)
+
+  t.strictEqual(store.get(5), null)
+})
+
+test('set with bad type', t => {
+  t.plan(1)
+
+  const store = SemVerStore()
+
+  try {
+    store.set(1, 1)
+    t.fail('Should fail')
+  } catch (err) {
+    t.is(err.message, 'Version should be a string')
+  }
+})
+
+test('del with bad type', t => {
+  t.plan(1)
+
+  const store = SemVerStore()
+
+  try {
+    store.del(1)
+    t.fail('Should fail')
+  } catch (err) {
+    t.is(err.message, 'Version should be a string')
+  }
+})
