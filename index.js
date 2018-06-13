@@ -8,6 +8,9 @@ function SemVerStore () {
 }
 
 SemVerStore.prototype.set = function (version, store) {
+  if (typeof version !== 'string') {
+    throw new TypeError('Version should be a string')
+  }
   var currentNode = this.tree
   version = version.split('.')
   while (version.length) {
@@ -20,6 +23,7 @@ SemVerStore.prototype.set = function (version, store) {
 }
 
 SemVerStore.prototype.get = function (version) {
+  if (typeof version !== 'string') return null
   var node = this.tree
   var firstDot = version.indexOf('.')
   var secondDot = version.indexOf('.', firstDot + 1)
@@ -41,6 +45,9 @@ SemVerStore.prototype.get = function (version) {
 }
 
 SemVerStore.prototype.del = function (version) {
+  if (typeof version !== 'string') {
+    throw new TypeError('Version should be a string')
+  }
   var firstDot = version.indexOf('.')
   var secondDot = version.indexOf('.', firstDot + 1)
   var major = version.slice(0, firstDot)
