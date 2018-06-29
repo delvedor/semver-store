@@ -28,6 +28,9 @@ suite
   .add('get', function () {
     store1.get('1.2.3')
   })
+  .add('get (wildcard)', function () {
+    store1.get('*')
+  })
   .add('get (minor wildcard)', function () {
     store1.get('1.x')
   })

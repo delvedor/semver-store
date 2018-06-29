@@ -126,6 +126,45 @@ test('Should get the leaf (wildcard) / 4', t => {
   t.strictEqual(store.get('2.x'), null)
 })
 
+test('Should get the leaf (wildcard) / 5', t => {
+  t.plan(1)
+
+  const store = SemVerStore()
+
+  store
+    .set('1.0.0', 1)
+    .set('1.0.1', 2)
+    .set('1.0.2', 3)
+
+  t.strictEqual(store.get('*'), 3)
+})
+
+test('Should get the leaf (wildcard) / 6', t => {
+  t.plan(1)
+
+  const store = SemVerStore()
+
+  store
+    .set('1.0.0', 1)
+    .set('1.1.0', 2)
+    .set('1.0.2', 3)
+
+  t.strictEqual(store.get('*'), 2)
+})
+
+test('Should get the leaf (wildcard) / 7', t => {
+  t.plan(1)
+
+  const store = SemVerStore()
+
+  store
+    .set('2.0.0', 1)
+    .set('1.1.0', 2)
+    .set('2.0.2', 3)
+
+  t.strictEqual(store.get('*'), 3)
+})
+
 test('Missing patch', t => {
   t.plan(1)
 

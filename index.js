@@ -24,6 +24,7 @@ SemVerStore.prototype.set = function (version, store) {
 
 SemVerStore.prototype.get = function (version) {
   if (typeof version !== 'string') return null
+  if (version === '*') version = 'x.x.x'
   var node = this.tree
   var firstDot = version.indexOf('.')
   var secondDot = version.indexOf('.', firstDot + 1)
