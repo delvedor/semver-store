@@ -27,7 +27,7 @@ The version **must** be conform with the [semver](http://semver.org/) specificat
 
 #### `get(version)`
 Get a document from the store with the specified version.<br/>
-The version string could be a full version string or specify a range, such as `1.x`, in which case the highest version compatible will be returned. Specify `*` to get the highest version.
+The version string could be a full version string or specify a range, such as `1.x`, in which case the highest version compatible will be returned. Specify `*` to get the highest version available.
 
 #### `del(version)`
 Deletes a document from the store with the specified version.<br/>
