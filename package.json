@@ -1,6 +1,6 @@
 {
   "name": "semver-store",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "An extremely fast semver based store",
   "main": "index.js",
   "scripts": {
