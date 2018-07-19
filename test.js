@@ -1,7 +1,10 @@
 'use strict'
 
-const { test } = require('tap')
+const test = require('ava')
 const SemVerStore = require('./index')
+
+// https://github.com/avajs/ava/issues/1481
+const deconstructIfy = obj => JSON.parse(JSON.stringify(obj))
 
 test('Should create a store', t => {
   t.plan(1)
@@ -13,7 +16,7 @@ test('Should create a store', t => {
     .set('1.2.4', 2)
     .set('1.3.0', 3)
 
-  t.deepEqual(store.tree, {
+  t.deepEqual(deconstructIfy(store.tree), {
     prefix: 0,
     store: null,
     childrenPrefixes: [1],
@@ -71,7 +74,7 @@ test('Should get the leaf', t => {
     .set('1.2.4', 2)
     .set('1.3.0', 3)
 
-  t.strictEqual(store.get('1.2.4'), 2)
+  t.is(store.get('1.2.4'), 2)
 })
 
 test('Should get the leaf (wildcard) / 1', t => {
@@ -84,7 +87,7 @@ test('Should get the leaf (wildcard) / 1', t => {
     .set('1.2.4', 2)
     .set('1.3.0', 3)
 
-  t.strictEqual(store.get('1.2.x'), 2)
+  t.is(store.get('1.2.x'), 2)
 })
 
 test('Should get the leaf (wildcard) / 2', t => {
@@ -97,7 +100,7 @@ test('Should get the leaf (wildcard) / 2', t => {
     .set('1.2.4', 2)
     .set('1.3.0', 3)
 
-  t.strictEqual(store.get('1.x'), 3)
+  t.is(store.get('1.x'), 3)
 })
 
 test('Should get the leaf (wildcard) / 3', t => {
@@ -110,7 +113,7 @@ test('Should get the leaf (wildcard) / 3', t => {
     .set('1.2.4', 2)
     .set('1.3.0', 3)
 
-  t.strictEqual(store.get('2.2.x'), null)
+  t.is(store.get('2.2.x'), null)
 })
 
 test('Should get the leaf (wildcard) / 4', t => {
@@ -123,7 +126,7 @@ test('Should get the leaf (wildcard) / 4', t => {
     .set('1.2.4', 2)
     .set('1.3.0', 3)
 
-  t.strictEqual(store.get('2.x'), null)
+  t.is(store.get('2.x'), null)
 })
 
 test('Should get the leaf (wildcard) / 5', t => {
@@ -136,7 +139,7 @@ test('Should get the leaf (wildcard) / 5', t => {
     .set('1.0.1', 2)
     .set('1.0.2', 3)
 
-  t.strictEqual(store.get('*'), 3)
+  t.is(store.get('*'), 3)
 })
 
 test('Should get the leaf (wildcard) / 6', t => {
@@ -149,7 +152,7 @@ test('Should get the leaf (wildcard) / 6', t => {
     .set('1.1.0', 2)
     .set('1.0.2', 3)
 
-  t.strictEqual(store.get('*'), 2)
+  t.is(store.get('*'), 2)
 })
 
 test('Should get the leaf (wildcard) / 7', t => {
@@ -162,7 +165,7 @@ test('Should get the leaf (wildcard) / 7', t => {
     .set('1.1.0', 2)
     .set('2.0.2', 3)
 
-  t.strictEqual(store.get('*'), 3)
+  t.is(store.get('*'), 3)
 })
 
 test('Missing patch', t => {
@@ -175,7 +178,7 @@ test('Missing patch', t => {
     .set('1.2.4', 2)
     .set('1.3.0', 3)
 
-  t.strictEqual(store.get('1.2'), 2)
+  t.is(store.get('1.2'), 2)
 })
 
 test('Should get the leaf - 404', t => {
@@ -188,7 +191,7 @@ test('Should get the leaf - 404', t => {
     .set('1.2.4', 2)
     .set('1.3.0', 3)
 
-  t.strictEqual(store.get('1.2.5'), null)
+  t.is(store.get('1.2.5'), null)
 })
 
 test('Should get the leaf (bad formatted semver) / 1', t => {
@@ -201,7 +204,7 @@ test('Should get the leaf (bad formatted semver) / 1', t => {
     .set('1.2.4', 2)
     .set('1.3.0', 3)
 
-  t.strictEqual(store.get('1.2.a'), null)
+  t.is(store.get('1.2.a'), null)
 })
 
 test('Should get the leaf (bad formatted semver) / 2', t => {
@@ -214,7 +217,7 @@ test('Should get the leaf (bad formatted semver) / 2', t => {
     .set('1.2.4', 2)
     .set('1.3.0', 3)
 
-  t.strictEqual(store.get('1.a'), null)
+  t.is(store.get('1.a'), null)
 })
 
 test('Big numbers', t => {
@@ -232,7 +235,7 @@ test('Big numbers', t => {
     .set('342.435.34', 7)
     .set('341.432.34', 8)
 
-  t.strictEqual(store.get('343.x'), 6)
+  t.is(store.get('343.x'), 6)
 })
 
 test('Delete a version / 1', t => {
@@ -244,13 +247,13 @@ test('Delete a version / 1', t => {
     .set('1.2.3', 1)
     .set('1.2.4', 2)
 
-  t.strictEqual(store.get('1.2.3'), 1)
-  t.strictEqual(store.get('1.2.4'), 2)
+  t.is(store.get('1.2.3'), 1)
+  t.is(store.get('1.2.4'), 2)
 
   store.del('1.2.3')
 
-  t.strictEqual(store.get('1.2.3'), null)
-  t.strictEqual(store.get('1.2.4'), 2)
+  t.is(store.get('1.2.3'), null)
+  t.is(store.get('1.2.4'), 2)
 })
 
 test('Delete a version / 2', t => {
@@ -262,7 +265,7 @@ test('Delete a version / 2', t => {
     .set('1.2.3', 1)
     .set('1.2.4', 2)
 
-  t.deepEqual(store.tree, {
+  t.deepEqual(deconstructIfy(store.tree), {
     prefix: 0,
     store: null,
     childrenPrefixes: [1],
@@ -298,7 +301,7 @@ test('Delete a version / 2', t => {
 
   store.del('1.2.3')
 
-  t.deepEqual(store.tree, {
+  t.deepEqual(deconstructIfy(store.tree), {
     prefix: 0,
     store: null,
     childrenPrefixes: [1],
@@ -336,7 +339,7 @@ test('Delete a version / 3', t => {
     .set('1.2.3', 1)
     .del('1.2.3')
 
-  t.deepEqual(store.tree, {
+  t.deepEqual(deconstructIfy(store.tree), {
     prefix: 0,
     store: null,
     childrenPrefixes: [],
@@ -354,7 +357,7 @@ test('Delete a version / 4', t => {
     .set('2.2.3', 2)
     .del('1.2.3')
 
-  t.deepEqual(store.tree, {
+  t.deepEqual(deconstructIfy(store.tree), {
     prefix: 0,
     store: null,
     childrenPrefixes: [2],
@@ -394,7 +397,7 @@ test('Delete a version / 5', t => {
     .set('2.2.3', 3)
     .del('1.2.x')
 
-  t.deepEqual(store.tree, {
+  t.deepEqual(deconstructIfy(store.tree), {
     prefix: 0,
     store: null,
     childrenPrefixes: [1, 2],
@@ -454,7 +457,7 @@ test('Delete a version / 6', t => {
     .set('2.2.3', 3)
     .del('1.x')
 
-  t.deepEqual(store.tree, {
+  t.deepEqual(deconstructIfy(store.tree), {
     prefix: 0,
     store: null,
     childrenPrefixes: [2],
@@ -484,7 +487,7 @@ test('Delete a version / 6', t => {
 
   store.del('2.x')
 
-  t.deepEqual(store.tree, {
+  t.deepEqual(deconstructIfy(store.tree), {
     prefix: 0,
     store: null,
     childrenPrefixes: [],
@@ -503,7 +506,7 @@ test('Empty store', t => {
     .set('2.2.3', 3)
     .empty()
 
-  t.deepEqual(store.tree, {
+  t.deepEqual(deconstructIfy(store.tree), {
     prefix: 0,
     store: null,
     childrenPrefixes: [],
@@ -518,7 +521,7 @@ test('get with bad type', t => {
 
   store.set('1.2.3', 1)
 
-  t.strictEqual(store.get(5), null)
+  t.is(store.get(5), null)
 })
 
 test('set with bad type', t => {
